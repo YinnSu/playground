@@ -54,5 +54,65 @@
     "F7": "./samples/vsco2-harp/f7.wav",
     "G3": "./samples/vsco2-harp/g3.wav",
     "G5": "./samples/vsco2-harp/g5.wav"
+  },
+  "vsco2-cello-spic": {
+    "1": {
+      "A2": "./samples/vsco2-cello/spic/a2_1.wav",
+      "B1": "./samples/vsco2-cello/spic/b1_1.wav",
+      "B3": "./samples/vsco2-cello/spic/b3_1.wav",
+      "C1": "./samples/vsco2-cello/spic/c1_1.wav",
+      "C3": "./samples/vsco2-cello/spic/c3_1.wav",
+      "D2": "./samples/vsco2-cello/spic/d2_1.wav",
+      "D4": "./samples/vsco2-cello/spic/d4_1.wav",
+      "E1": "./samples/vsco2-cello/spic/e1_1.wav",
+      "E3": "./samples/vsco2-cello/spic/e3_1.wav",
+      "F2": "./samples/vsco2-cello/spic/f2_1.wav",
+      "F4": "./samples/vsco2-cello/spic/f4_1.wav",
+      "G1": "./samples/vsco2-cello/spic/g1_1.wav",
+      "G3": "./samples/vsco2-cello/spic/g3_1.wav"
+    },
+    "2": {
+      "A2": "./samples/vsco2-cello/spic/a2_2.wav",
+      "B1": "./samples/vsco2-cello/spic/b1_2.wav",
+      "B3": "./samples/vsco2-cello/spic/b3_2.wav",
+      "C1": "./samples/vsco2-cello/spic/c1_2.wav",
+      "C3": "./samples/vsco2-cello/spic/c3_2.wav",
+      "D2": "./samples/vsco2-cello/spic/d2_2.wav",
+      "D4": "./samples/vsco2-cello/spic/d4_2.wav",
+      "E1": "./samples/vsco2-cello/spic/e1_2.wav",
+      "E3": "./samples/vsco2-cello/spic/e3_2.wav",
+      "F2": "./samples/vsco2-cello/spic/f2_2.wav",
+      "F4": "./samples/vsco2-cello/spic/f4_2.wav",
+      "G1": "./samples/vsco2-cello/spic/g1_2.wav",
+      "G3": "./samples/vsco2-cello/spic/g3_2.wav"
+    }
+  },
+  "vsco2-violin-spic": {
+    "1": {
+      "A2": "./samples/vsco2-violin/Spic/a2_1.wav",
+      "A3": "./samples/vsco2-violin/Spic/a3_1.wav",
+      "B2": "./samples/vsco2-violin/Spic/b2_1.wav",
+      "B4": "./samples/vsco2-violin/Spic/b4_1.wav",
+      "C4": "./samples/vsco2-violin/Spic/c4_1.wav",
+      "D3": "./samples/vsco2-violin/Spic/d3_1.wav",
+      "D5": "./samples/vsco2-violin/Spic/d5_1.wav",
+      "E4": "./samples/vsco2-violin/Spic/e4_1.wav",
+      "F#3": "./samples/vsco2-violin/Spic/fsharp3_1.wav",
+      "G2": "./samples/vsco2-violin/Spic/g2_1.wav",
+      "G4": "./samples/vsco2-violin/Spic/g4_1.wav"
+    },
+    "2": {
+      "A2": "./samples/vsco2-violin/Spic/a2_2.wav",
+      "A3": "./samples/vsco2-violin/Spic/a3_2.wav",
+      "B2": "./samples/vsco2-violin/Spic/b2_2.wav",
+      "B4": "./samples/vsco2-violin/Spic/b4_2.wav",
+      "C4": "./samples/vsco2-violin/Spic/c4_2.wav",
+      "D3": "./samples/vsco2-violin/Spic/d3_2.wav",
+      "D5": "./samples/vsco2-violin/Spic/d5_2.wav",
+      "E4": "./samples/vsco2-violin/Spic/e4_2.wav",
+      "F#3": "./samples/vsco2-violin/Spic/fsharp3_2.wav",
+      "G2": "./samples/vsco2-violin/Spic/g2_2.wav",
+      "G4": "./samples/vsco2-violin/Spic/g4_2.wav"
+    }
   }
 }
