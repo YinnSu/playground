@@ -1,8 +1,12 @@
-import { Noise, Master, Transport, Tremolo, EQ3 } from 'tone';
+import Tone from 'tone';
 
-const noise = new Noise('brown');
-const eq = new EQ3(0, -Infinity, -Infinity).toMaster();
-eq.lowFrequency.value = 60;
+const noise = new Tone.Noise('brown');
+const eq = new Tone.EQ3(0, -Infinity, -Infinity).toMaster();
+eq.lowFrequency.value = 100;
+
+const synth = new Tone.MonoSynth({ type: 'sine ' }).toMaster();
+
+//synth.triggerAttackRelease('D2', 1);
 
 export default () => {
   noise.connect(eq);

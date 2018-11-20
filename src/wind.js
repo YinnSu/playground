@@ -1,28 +1,39 @@
-import { Noise, AutoFilter, Master, Sampler, Transport } from 'tone';
+import { Sampler, Transport, FeedbackDelay, Freeverb } from 'tone';
 import { Chord } from 'tonal';
 import samples from './samples.json';
 
-const glock = new Sampler(samples['vsco2-glock']).toMaster();
+const glockDelay = new FeedbackDelay(8, 0.7);
+const glockVerb = new Freeverb(0.9, 2000).toMaster();
 
-const randomBetween = (min, max) => Math.random() * (max - min) + min;
+const glock = new Sampler(samples['vsco2-glock']).chain(glockDelay, glockVerb);
+
+const chordInterval = (tonic, interval) => {
+  Transport.scheduleRepeat(
+    time => {
+      const notes = Chord.notes(tonic, 'm7');
+      const numNotesToPlay = Math.floor(Math.random() * (notes.length + 1));
+      let playedNotes = 0;
+      let beat = 1;
+      while (playedNotes < numNotesToPlay) {
+        const chanceToPlay =
+          0.1 + (beat % 4 === 1 ? 0.1 : 0) + (beat % 2 === 1 ? 0.1 : 0);
+        if (Math.random() < chanceToPlay) {
+          const noteIndex = Math.floor(Math.random() * notes.length);
+          const note = notes[noteIndex];
+          notes.splice(noteIndex, 1);
+          glock.triggerAttack(note, time + beat);
+          playedNotes += 1;
+        }
+        beat += 1;
+      }
+    },
+    interval,
+    Math.floor(Math.random() * 5) * 2
+  );
+};
 
 export default () => {
-  const noise = new Noise('pink').start();
-
-  const autoFilter = new AutoFilter({
-    frequency: '60m',
-    min: 40,
-    max: 11500,
-  }).connect(Master);
-
-  noise.connect(autoFilter);
-  autoFilter.start();
-
-  const notes = Chord.notes('A4', 'm7').concat(Chord.notes('A5', 'm7'));
-  notes.forEach(note => {
-    Transport.scheduleRepeat(() => {
-      glock.triggerAttack(note, `+1`);
-    }, randomBetween(20, 80));
-  });
+  chordInterval('A4', 22);
+  chordInterval('A5', 20);
   Transport.start();
 };

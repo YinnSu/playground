@@ -114,5 +114,11 @@
       "G2": "./samples/vsco2-violin/Spic/g2_2.wav",
       "G4": "./samples/vsco2-violin/Spic/g4_2.wav"
     }
+  },
+  "kasper-singing-bowls": {
+    "F#2": "./samples/kasper-singing-bowls/fsharp2.wav",
+    "B2": "./samples/kasper-singing-bowls/b2.wav",
+    "F#3": "./samples/kasper-singing-bowls/fsharp3.wav",
+    "A4": "./samples/kasper-singing-bowls/a4.wav"
   }
 }
