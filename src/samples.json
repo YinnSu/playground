@@ -116,9 +116,9 @@
     }
   },
   "kasper-singing-bowls": {
-    "F#2": "./samples/kasper-singing-bowls/fsharp2.wav",
-    "B2": "./samples/kasper-singing-bowls/b2.wav",
-    "F#3": "./samples/kasper-singing-bowls/fsharp3.wav",
-    "A4": "./samples/kasper-singing-bowls/a4.wav"
+    "F#2": "./samples/kasper-singing-bowls/processed/articulation1/fsharp2-1.wav",
+    "B2": "./samples/kasper-singing-bowls/processed/articulation1/b2.wav",
+    "F#3": "./samples/kasper-singing-bowls/processed/articulation1/fsharp3-1.wav",
+    "A3": "./samples/kasper-singing-bowls/processed/articulation1/a3.wav"
   }
 }
