@@ -120,5 +120,30 @@
     "B2": "./samples/kasper-singing-bowls/processed/articulation1/b2.wav",
     "F#3": "./samples/kasper-singing-bowls/processed/articulation1/fsharp3-1.wav",
     "A3": "./samples/kasper-singing-bowls/processed/articulation1/a3.wav"
+  },
+  "vsco2-violin-susvib": {
+    "A2": "./samples/vsco2-violin/susVib/a2_1.wav",
+    "A3": "./samples/vsco2-violin/susVib/a3_1.wav",
+    "B2": "./samples/vsco2-violin/susVib/b2_1.wav",
+    "B4": "./samples/vsco2-violin/susVib/b4_1.wav",
+    "C4": "./samples/vsco2-violin/susVib/c4_1.wav",
+    "C3": "./samples/vsco2-violin/susVib/d3_1.wav",
+    "D5": "./samples/vsco2-violin/susVib/d5_1.wav",
+    "E4": "./samples/vsco2-violin/susVib/e4_1.wav",
+    "F#3": "./samples/vsco2-violin/susVib/fsharp3_1.wav",
+    "G2": "./samples/vsco2-violin/susVib/g2_1.wav",
+    "G4": "./samples/vsco2-violin/susVib/g4_1.wav"
+  },
+  "vsco2-marimba": {
+    "B2": "./samples/vsco2-marimba/b2.wav",
+    "B4": "./samples/vsco2-marimba/b4.wav",
+    "C2": "./samples/vsco2-marimba/c2.wav",
+    "C4": "./samples/vsco2-marimba/c4.wav",
+    "C6": "./samples/vsco2-marimba/c6.wav",
+    "F1": "./samples/vsco2-marimba/f1.wav",
+    "F3": "./samples/vsco2-marimba/f3.wav",
+    "F5": "./samples/vsco2-marimba/f5.wav",
+    "G2": "./samples/vsco2-marimba/g2.wav",
+    "G4": "./samples/vsco2-marimba/g4.wav"
   }
 }
