@@ -1,7 +1,12 @@
-import { Scale } from 'tonal';
+import { Scale, Note } from 'tonal';
+import Tone from 'tone';
+import samples from './samples.json';
 
 const OCTAVES = [3, 4, 5, 6];
 const MAX_STEP_DISTANCE = 2;
+const MAX_PHRASE_LENGTH = 3;
+const PHRASE_P_BASE = 0.5;
+
 const pitchClasses = Scale.notes('C', 'major');
 
 const notes = OCTAVES.reduce(
@@ -21,7 +26,10 @@ const getNextNotesForNote = note => {
 const generatePhrase = (
   phrase = [notes[Math.floor(Math.random() * notes.length)]]
 ) => {
-  if (Math.random() < 0.6 - 0.1 * phrase.length) {
+  if (
+    phrase.length < MAX_PHRASE_LENGTH &&
+    Math.random() < PHRASE_P_BASE ** phrase.length
+  ) {
     const lastNote = phrase[phrase.length - 1];
     const possibleNextNotes = getNextNotesForNote(lastNote);
     return generatePhrase(
@@ -33,6 +41,93 @@ const generatePhrase = (
   return phrase;
 };
 
-setInterval(() => {
-  console.log(generatePhrase());
-}, 2000);
+const reverb = new Tone.Freeverb({ roomSize: 0.7 });
+
+const delayFudge = Math.random();
+
+const delay = new Tone.FeedbackDelay({
+  wet: 0.5,
+  delayTime: 5 + delayFudge,
+  feedback: 0.8 - delayFudge / 100,
+});
+
+const chorusLfo = new Tone.LFO({ frequency: Math.random() / 100, phase: 90 });
+chorusLfo.start();
+const chorus = new Tone.Chorus({ wet: 0 });
+chorusLfo.connect(chorus.wet);
+
+const autoFilter = new Tone.AutoFilter({
+  frequency: Math.random() / 100,
+  baseFrequency: 250,
+  octaves: 5,
+  type: 'sine',
+});
+autoFilter.start();
+
+const pitchLfo = new Tone.LFO({ frequency: Math.random() / 100, phase: 90 });
+pitchLfo.start();
+const pitchShift = new Tone.PitchShift({ pitch: 7 });
+pitchLfo.connect(pitchShift.wet);
+
+const tremoloFrequencyLfo = new Tone.LFO({
+  frequency: Math.random() / 100,
+  phase: 90,
+  min: 0.1,
+  max: 10,
+});
+const tremoloLfo = new Tone.LFO({ frequency: Math.random() / 100, phase: 90 });
+tremoloFrequencyLfo.start();
+tremoloLfo.start();
+const tremolo = new Tone.Tremolo();
+tremoloFrequencyLfo.connect(tremolo.frequency);
+tremoloLfo.connect(tremolo.wet);
+tremolo.start();
+
+const compressor = new Tone.Compressor();
+
+const piano = new Tone.Sampler(samples['vsco2-piano-mf']).chain(
+  pitchShift,
+  delay,
+  reverb,
+  chorus,
+  autoFilter,
+  tremolo,
+  compressor,
+  Tone.Master
+);
+
+const synth = new Tone.MonoSynth({
+  oscillator: { type: 'sine' },
+  volume: -45,
+  envelope: { release: 3, attack: 0.5 },
+}).chain(delay);
+
+const schedulePhrase = (iterationsSinceLastSub = 6) =>
+  setTimeout(() => {
+    const phrase = generatePhrase();
+    const generateSub = iterationsSinceLastSub > 5 && Math.random() < 0.02;
+    if (generateSub) {
+      const lowestNoteMidi = phrase
+        .map(note => Note.midi(note))
+        .reduce(
+          (lowestFound, noteMidi) => Math.min(lowestFound, noteMidi),
+          Infinity
+        );
+      const lowestNote = Note.fromMidi(lowestNoteMidi);
+      const lowestNotePitchClass = Note.pc(lowestNote);
+      synth.triggerAttackRelease(`${lowestNotePitchClass}1`, 3);
+    }
+    phrase.forEach((note, i) => {
+      if (Tone.context.state !== 'running') {
+        Tone.context.resume();
+      }
+      piano.triggerAttack(note, `+${i * 1.5}`);
+    });
+    schedulePhrase(generateSub ? 0 : iterationsSinceLastSub + 1);
+  }, Math.random() * 10000 + 10000);
+
+schedulePhrase();
+
+window.tremolo = tremolo;
+
+window.lfo = pitchLfo;
