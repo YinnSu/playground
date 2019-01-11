@@ -19,17 +19,15 @@ const getInstrument = () =>
     });
   });
 
-const compressor = new Tone.Compressor().toMaster();
-
 const sineSynth = new Tone.MonoSynth({
   oscillator: { type: 'sine' },
   envelope: {
     attack: 3,
     release: 10,
   },
-}).connect(compressor);
+}).toMaster();
 
-sineSynth.volume.value = -30;
+sineSynth.volume.value = -35;
 
 const playNote = (instrument, lastNoteMidi) => {
   const newNotes = notes.filter(n => Note.midi(n) !== lastNoteMidi);
@@ -43,7 +41,7 @@ const playNote = (instrument, lastNoteMidi) => {
 };
 
 getInstrument().then(instrument => {
-  instrument.connect(compressor);
+  instrument.toMaster();
   instrument.volume.value = -15;
   playNote(instrument);
 });
