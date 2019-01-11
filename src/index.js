@@ -36,7 +36,7 @@ const playNote = (instrument, lastNoteMidi) => {
   const note = newNotes[Math.floor(Math.random() * newNotes.length)];
   instrument.triggerAttack(note, '+0.5');
   const pitchClass = Note.pc(note);
-  //sineSynth.triggerAttackRelease(`${pitchClass}1`, 5, '+0.5');
+  sineSynth.triggerAttackRelease(`${pitchClass}1`, 5, '+0.5');
   setTimeout(() => {
     playNote(instrument, Note.midi(note));
   }, Math.random() * 10000 + 10000);
