@@ -169,5 +169,20 @@
     "F7": "./samples/vsco2-piano-mf/f7.wav",
     "A7": "./samples/vsco2-piano-mf/a7.wav",
     "C8": "./samples/vsco2-piano-mf/c8.wav"
+  },
+  "otherness": {
+    "D#2": "./samples/otherness/dsharp2.wav",
+    "F2": "./samples/otherness/f2.wav",
+    "G2": "./samples/otherness/g2.wav",
+    "A#2": "./samples/otherness/asharp2.wav",
+    "C3": "./samples/otherness/c3.wav",
+    "D#3": "./samples/otherness/dsharp3.wav",
+    "F3": "./samples/otherness/f3.wav",
+    "G3": "./samples/otherness/g3.wav",
+    "A#3": "./samples/otherness/asharp3.wav",
+    "C4": "./samples/otherness/c4.wav",
+    "D#4": "./samples/otherness/dsharp4.wav",
+    "F4": "./samples/otherness/f4.wav",
+    "G4": "./samples/otherness/g4.wav"
   }
 }
