@@ -2,8 +2,6 @@ import Tone from 'tone';
 import { Note } from 'tonal';
 import samples from './samples.json';
 
-Tone.context.latencyHint = 'playback';
-
 const OCTAVES = [2, 3, 4];
 const notes = OCTAVES.reduce(
   (allNotes, octave) =>
@@ -27,21 +25,21 @@ const sineSynth = new Tone.MonoSynth({
   },
 }).toMaster();
 
-sineSynth.volume.value = -35;
+sineSynth.volume.value = -25;
 
 const playNote = (instrument, lastNoteMidi) => {
   const newNotes = notes.filter(n => Note.midi(n) !== lastNoteMidi);
   const note = newNotes[Math.floor(Math.random() * newNotes.length)];
-  instrument.triggerAttack(note, '+0.5');
+  instrument.triggerAttack(note, '+1.5');
   const pitchClass = Note.pc(note);
-  sineSynth.triggerAttackRelease(`${pitchClass}1`, 5, '+0.5');
+  sineSynth.triggerAttackRelease(`${pitchClass}1`, 5, '+1.5');
   setTimeout(() => {
     playNote(instrument, Note.midi(note));
   }, Math.random() * 10000 + 10000);
 };
 
 getInstrument().then(instrument => {
-  instrument.toMaster();
-  instrument.volume.value = -15;
+  instrument.chain(Tone.Master);
+  instrument.volume.value = -5;
   playNote(instrument);
 });

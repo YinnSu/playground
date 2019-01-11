@@ -171,18 +171,18 @@
     "C8": "./samples/vsco2-piano-mf/c8.wav"
   },
   "otherness": {
-    "D#2": "./samples/otherness/dsharp2.wav",
-    "F2": "./samples/otherness/f2.wav",
-    "G2": "./samples/otherness/g2.wav",
-    "A#2": "./samples/otherness/asharp2.wav",
-    "C3": "./samples/otherness/c3.wav",
-    "D#3": "./samples/otherness/dsharp3.wav",
-    "F3": "./samples/otherness/f3.wav",
-    "G3": "./samples/otherness/g3.wav",
-    "A#3": "./samples/otherness/asharp3.wav",
-    "C4": "./samples/otherness/c4.wav",
-    "D#4": "./samples/otherness/dsharp4.wav",
-    "F4": "./samples/otherness/f4.wav",
-    "G4": "./samples/otherness/g4.wav"
+    "D#2": "./samples/otherness/ogg/dsharp2.ogg",
+    "F2": "./samples/otherness/ogg/f2.ogg",
+    "G2": "./samples/otherness/ogg/g2.ogg",
+    "A#2": "./samples/otherness/ogg/asharp2.ogg",
+    "C3": "./samples/otherness/ogg/c3.ogg",
+    "D#3": "./samples/otherness/ogg/dsharp3.ogg",
+    "F3": "./samples/otherness/ogg/f3.ogg",
+    "G3": "./samples/otherness/ogg/g3.ogg",
+    "A#3": "./samples/otherness/ogg/asharp3.ogg",
+    "C4": "./samples/otherness/ogg/c4.ogg",
+    "D#4": "./samples/otherness/ogg/dsharp4.ogg",
+    "F4": "./samples/otherness/ogg/f4.ogg",
+    "G4": "./samples/otherness/ogg/g4.ogg"
   }
 }
