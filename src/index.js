@@ -1,52 +1,112 @@
 import Tone from 'tone';
-import { Scale, Note } from 'tonal';
+import { Note } from 'tonal';
+import * as Range from 'tonal-range';
 import samples from './samples.json';
 
-const pianoPromise = new Promise(resolve => {
-  const piano = new Tone.Sampler(samples['vsco2-piano-mf'], {
-    onload: () => resolve(piano),
-  }).toMaster();
-});
+const MAX_STEP_DISTANCE = 3;
+const MAX_PHRASE_LENGTH = 3;
+const PHRASE_P_BASE = 0.5;
 
-const tonic = Note.names()[Math.floor(Math.random() * Note.names().length)];
-const scalePitchClasses = Scale.notes(tonic, 'major');
-const notes = [3, 4, 5, 6, 7].reduce(
-  (allNotes, octave) =>
-    allNotes.concat(scalePitchClasses.map(pc => `${pc}${octave}`)),
-  []
-);
+const delay = new Tone.FeedbackDelay({
+  feedback: 0.3,
+  wet: 0.5,
+  delayTime: 10,
+}).toMaster();
 
-const getProgression = () => {
-  const startingIndex = Math.floor(Math.random() * notes.length);
-  const progression = [[notes[startingIndex]]];
-  const gap = Math.floor(Math.random() * 5);
-  for (let i = 2; i === 2 || i <= Math.random() * 5; i += 1) {
-    const chord = [];
-    if (i % 2 === 0) {
-      for (let j = 1; j <= i; j += 2) {
-        chord.push(startingIndex - j, startingIndex + j);
-      }
-    } else {
-      chord.push(startingIndex);
-      for (let j = 2; j <= i; j += 2) {
-        chord.push(startingIndex - j, startingIndex + j);
-      }
-    }
-    progression.push(
-      chord
-        .filter(index => index >= 0 && index < notes.length)
-        .map(index => notes[index])
-    );
-  }
-  return progression;
+const reverb = new Tone.Freeverb({ roomSize: 0.6 }).connect(delay);
+
+const cMajorRange = Range.scale(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
+
+const getNextNotesForNote = (notes, note) => {
+  const index = notes.findIndex(n => n === note);
+  const lowestIndex = Math.max(0, index - MAX_STEP_DISTANCE);
+  return notes
+    .slice(lowestIndex, index)
+    .concat(notes.slice(index + 1, index + MAX_STEP_DISTANCE + 1));
 };
 
-pianoPromise.then(piano => {
-  setInterval(() => {
-    const progression = getProgression();
-    const perNoteDelay = Math.random() * 4 + 1;
-    progression.forEach((chord, i) => {
-      chord.forEach(note => piano.triggerAttack(note, `+${i * perNoteDelay}`));
+const generatePhrase = (
+  notes,
+  phrase = [notes[Math.floor(Math.random() * notes.length)]]
+) => {
+  if (
+    phrase.length < MAX_PHRASE_LENGTH &&
+    Math.random() < PHRASE_P_BASE ** phrase.length
+  ) {
+    const lastNote = phrase[phrase.length - 1];
+    const possibleNextNotes = getNextNotesForNote(notes, lastNote);
+    return generatePhrase(
+      notes,
+      phrase.concat([
+        possibleNextNotes[Math.floor(Math.random() * possibleNextNotes.length)],
+      ])
+    );
+  }
+  return phrase;
+};
+
+const generatePhraseForInstrument = instrumentName => {
+  const sampledNotes = Object.keys(samples[instrumentName]);
+  const lowestNote = sampledNotes.reduce(
+    (currentLowest, note) =>
+      Note.freq(note) < Note.freq(currentLowest) ? note : currentLowest,
+    Infinity
+  );
+  const highestNote = sampledNotes.reduce(
+    (currentHighest, note) =>
+      Note.freq(note) > Note.freq(currentHighest) ? note : currentHighest,
+    -Infinity
+  );
+
+  return generatePhrase(cMajorRange([lowestNote, highestNote]));
+};
+
+const getSampledInstrument = instrumentName =>
+  new Promise(resolve => {
+    const instrument = new Tone.Sampler(samples[instrumentName], {
+      onload: () => resolve(instrument),
     });
-  }, 10000);
+  });
+
+const instrumentConfigs = {
+  'vsco2-piano-mf': {
+    isSingleNote: false,
+    secondsBetweenNotes: 2,
+  },
+  'vsco2-controbass-susvib': {
+    isSingleNote: true,
+  },
+  'vsco2-violin-arcvib': {
+    isSingleNote: false,
+    secondsBetweenNotes: 8,
+  },
+};
+
+const makeInstrumentComponent = instrumentName => {
+  const start = instrument => {
+    instrument.connect(reverb);
+    const playPhrase = () => {
+      const phrase = generatePhraseForInstrument(instrumentName);
+      const { isSingleNote, secondsBetweenNotes } = instrumentConfigs[
+        instrumentName
+      ];
+      if (isSingleNote) {
+        instrument.triggerAttack(phrase[0], `+0.1`);
+      } else {
+        phrase.forEach((note, i) => {
+          instrument.triggerAttack(note, `+${i * secondsBetweenNotes + 0.1}`);
+        });
+      }
+    };
+
+    playPhrase();
+    setInterval(() => {
+      playPhrase();
+    }, Math.random() * 10000 + 10000);
+  };
+  getSampledInstrument(instrumentName).then(instrument => start(instrument));
+};
+
+Reflect.ownKeys(instrumentConfigs).forEach(instrumentName => {
+  makeInstrumentComponent(instrumentName);
 });

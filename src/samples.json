@@ -184,5 +184,37 @@
     "D#4": "./samples/otherness/ogg/dsharp4.ogg",
     "F4": "./samples/otherness/ogg/f4.ogg",
     "G4": "./samples/otherness/ogg/g4.ogg"
+  },
+  "vsco2-contrabass-susvib": {
+    "A1": "./samples/vsco2-contrabass-susvib/a1.wav",
+    "A#0": "./samples/vsco2-contrabass-susvib/asharp0.wav",
+    "B2": "./samples/vsco2-contrabass-susvib/b2.wav",
+    "C1": "./samples/vsco2-contrabass-susvib/c1.wav",
+    "C#2": "./samples/vsco2-contrabass-susvib/csharp2.wav",
+    "D1": "./samples/vsco2-contrabass-susvib/d1.wav",
+    "E1": "./samples/vsco2-contrabass-susvib/e1.wav",
+    "E2": "./samples/vsco2-contrabass-susvib/e2.wav",
+    "F#0": "./samples/vsco2-contrabass-susvib/fsharp0.wav",
+    "F#1": "./samples/vsco2-contrabass-susvib/fsharp1.wav",
+    "G0": "./samples/vsco2-contrabass-susvib/g0.wav",
+    "G#1": "./samples/vsco2-contrabass-susvib/gsharp1.wav",
+    "G#2": "./samples/vsco2-contrabass-susvib/gsharp2.wav"
+  },
+  "vsco2-violin-arcvib": {
+    "A3": "./samples/vsco2-violin-arcvib/a3.wav",
+    "A4": "./samples/vsco2-violin-arcvib/a4.wav",
+    "A5": "./samples/vsco2-violin-arcvib/a5.wav",
+    "A6": "./samples/vsco2-violin-arcvib/a6.wav",
+    "C4": "./samples/vsco2-violin-arcvib/c4.wav",
+    "C5": "./samples/vsco2-violin-arcvib/c5.wav",
+    "C6": "./samples/vsco2-violin-arcvib/c6.wav",
+    "C7": "./samples/vsco2-violin-arcvib/c7.wav",
+    "E4": "./samples/vsco2-violin-arcvib/e4.wav",
+    "E5": "./samples/vsco2-violin-arcvib/e5.wav",
+    "E6": "./samples/vsco2-violin-arcvib/e6.wav",
+    "G3": "./samples/vsco2-violin-arcvib/g3.wav",
+    "G4": "./samples/vsco2-violin-arcvib/g4.wav",
+    "G5": "./samples/vsco2-violin-arcvib/g5.wav",
+    "G6": "./samples/vsco2-violin-arcvib/g6.wav"
   }
 }
