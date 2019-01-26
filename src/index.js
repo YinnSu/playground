@@ -45,7 +45,17 @@ const generatePhrase = (
   return phrase;
 };
 
-const generatePhraseForInstrument = instrumentName => {
+const getSampledInstrument = instrumentName =>
+  new Promise(resolve => {
+    const instrument = new Tone.Sampler(samples[instrumentName], {
+      onload: () => resolve(instrument),
+    });
+  });
+
+const getPossibleNotesForInstrument = (
+  instrumentName,
+  octaves = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+) => {
   const sampledNotes = Object.keys(samples[instrumentName]);
   const lowestNote = sampledNotes.reduce(
     (currentLowest, note) =>
@@ -58,38 +68,36 @@ const generatePhraseForInstrument = instrumentName => {
     -Infinity
   );
 
-  return generatePhrase(cMajorRange([lowestNote, highestNote]));
+  return cMajorRange([lowestNote, highestNote]).filter(note =>
+    octaves.includes(Note.oct(note))
+  );
 };
-
-const getSampledInstrument = instrumentName =>
-  new Promise(resolve => {
-    const instrument = new Tone.Sampler(samples[instrumentName], {
-      onload: () => resolve(instrument),
-    });
-  });
 
 const instrumentConfigs = {
   'vsco2-piano-mf': {
     isSingleNote: false,
     secondsBetweenNotes: 2,
+    notes: getPossibleNotesForInstrument('vsco2-piano-mf', [2, 3, 4, 5, 6]),
   },
-  'vsco2-controbass-susvib': {
+  'vsco2-contrabass-susvib': {
     isSingleNote: true,
+    notes: getPossibleNotesForInstrument('vsco2-contrabass-susvib'),
   },
   'vsco2-violin-arcvib': {
     isSingleNote: false,
     secondsBetweenNotes: 8,
+    notes: getPossibleNotesForInstrument('vsco2-violin-arcvib'),
   },
 };
 
 const makeInstrumentComponent = instrumentName => {
   const start = instrument => {
     instrument.connect(reverb);
+    const { isSingleNote, secondsBetweenNotes, notes } = instrumentConfigs[
+      instrumentName
+    ];
     const playPhrase = () => {
-      const phrase = generatePhraseForInstrument(instrumentName);
-      const { isSingleNote, secondsBetweenNotes } = instrumentConfigs[
-        instrumentName
-      ];
+      const phrase = generatePhrase(notes);
       if (isSingleNote) {
         instrument.triggerAttack(phrase[0], `+0.1`);
       } else {
