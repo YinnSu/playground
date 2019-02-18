@@ -1,120 +1,90 @@
 import Tone from 'tone';
-import { Note } from 'tonal';
-import * as Range from 'tonal-range';
 import samples from './samples.json';
 
-const MAX_STEP_DISTANCE = 3;
-const MAX_PHRASE_LENGTH = 3;
-const PHRASE_P_BASE = 0.5;
+const flutePromise = new Promise(resolve => {
+  const flute = new Tone.Sampler(samples['vsco2-flute-susvib'], {
+    onload: () => resolve(flute),
+    volume: -40,
+    fadeIn: 3,
+    curve: 'linear',
+  });
+});
 
-const delay = new Tone.FeedbackDelay({
-  feedback: 0.3,
-  wet: 0.5,
-  delayTime: 10,
-}).toMaster();
+// COPY
 
-const reverb = new Tone.Freeverb({ roomSize: 0.6 }).connect(delay);
+const FLUTE_NOTES = ['C3', 'C4', 'G3', 'G4'];
+const guitarSamples = [];
+for (let i = 1; i <= 86; i += 1) {
+  guitarSamples.push(`./samples/acoustic-chords/${i}.wav`);
+}
 
-const cMajorRange = Range.scale(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
-
-const getNextNotesForNote = (notes, note) => {
-  const index = notes.findIndex(n => n === note);
-  const lowestIndex = Math.max(0, index - MAX_STEP_DISTANCE);
-  return notes
-    .slice(lowestIndex, index)
-    .concat(notes.slice(index + 1, index + MAX_STEP_DISTANCE + 1));
-};
-
-const generatePhrase = (
-  notes,
-  phrase = [notes[Math.floor(Math.random() * notes.length)]]
-) => {
-  if (
-    phrase.length < MAX_PHRASE_LENGTH &&
-    Math.random() < PHRASE_P_BASE ** phrase.length
-  ) {
-    const lastNote = phrase[phrase.length - 1];
-    const possibleNextNotes = getNextNotesForNote(notes, lastNote);
-    return generatePhrase(
-      notes,
-      phrase.concat([
-        possibleNextNotes[Math.floor(Math.random() * possibleNextNotes.length)],
-      ])
-    );
-  }
-  return phrase;
-};
-
-const getSampledInstrument = instrumentName =>
-  new Promise(resolve => {
-    const instrument = new Tone.Sampler(samples[instrumentName], {
-      onload: () => resolve(instrument),
+const makePiece = master =>
+  Promise.all([
+    flutePromise,
+    ...guitarSamples.map(
+      url =>
+        new Promise(resolve => {
+          const buffer = new Tone.Buffer(url, () => resolve(buffer));
+        })
+    ),
+  ]).then(([flute, ...guitarBuffers]) => {
+    const volumeLfo = new Tone.LFO({
+      frequency: Math.random() / 100,
+      min: -40,
+      max: -25,
     });
+    volumeLfo.connect(flute.volume);
+    volumeLfo.start();
+    const fluteReverb = new Tone.Reverb(50);
+    fluteReverb.wet.value = 1;
+    const delay = new Tone.FeedbackDelay({ delayTime: 1, feedback: 0.7 });
+    fluteReverb.generate().then(() => {
+      flute.chain(fluteReverb, delay, master);
+
+      const intervalTimes = FLUTE_NOTES.map(() => Math.random() * 10000 + 5000);
+
+      const shortestInterval = Math.min(...intervalTimes);
+
+      FLUTE_NOTES.forEach((note, i) => {
+        const playNote = () => {
+          flute.triggerAttack(note, '+1');
+        };
+        setTimeout(() => {
+          playNote();
+          setInterval(() => {
+            playNote();
+          }, intervalTimes[i]);
+        }, intervalTimes[i] - shortestInterval);
+      });
+    });
+
+    const reverb = new Tone.Freeverb({
+      roomSize: 0.5,
+      dampening: 5000,
+      wet: 0.2,
+    });
+    const compressor = new Tone.Compressor();
+    reverb.chain(compressor, master);
+    const playRandomChord = lastChord => {
+      const nextChords = guitarBuffers.filter(chord => chord !== lastChord);
+      const randomChord =
+        nextChords[Math.floor(Math.random() * nextChords.length)];
+      const source = new Tone.BufferSource(randomChord).connect(reverb);
+      source.onended = () => console.log('ended');
+      source.start('+1');
+      setTimeout(() => {
+        playRandomChord(randomChord);
+      }, Math.random() * 10000 + 10000);
+    };
+    setTimeout(() => {
+      playRandomChord();
+    }, Math.random() * 5000 + 5000);
   });
 
-const getPossibleNotesForInstrument = (
-  instrumentName,
-  octaves = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-) => {
-  const sampledNotes = Object.keys(samples[instrumentName]);
-  const lowestNote = sampledNotes.reduce(
-    (currentLowest, note) =>
-      Note.freq(note) < Note.freq(currentLowest) ? note : currentLowest,
-    Infinity
-  );
-  const highestNote = sampledNotes.reduce(
-    (currentHighest, note) =>
-      Note.freq(note) > Note.freq(currentHighest) ? note : currentHighest,
-    -Infinity
-  );
+makePiece(Tone.Master);
 
-  return cMajorRange([lowestNote, highestNote]).filter(note =>
-    octaves.includes(Note.oct(note))
-  );
-};
-
-const instrumentConfigs = {
-  'vsco2-piano-mf': {
-    isSingleNote: false,
-    secondsBetweenNotes: 2,
-    notes: getPossibleNotesForInstrument('vsco2-piano-mf', [2, 3, 4, 5, 6]),
-  },
-  'vsco2-contrabass-susvib': {
-    isSingleNote: true,
-    notes: getPossibleNotesForInstrument('vsco2-contrabass-susvib'),
-  },
-  'vsco2-violin-arcvib': {
-    isSingleNote: false,
-    secondsBetweenNotes: 8,
-    notes: getPossibleNotesForInstrument('vsco2-violin-arcvib'),
-  },
-};
-
-const makeInstrumentComponent = instrumentName => {
-  const start = instrument => {
-    instrument.connect(reverb);
-    const { isSingleNote, secondsBetweenNotes, notes } = instrumentConfigs[
-      instrumentName
-    ];
-    const playPhrase = () => {
-      const phrase = generatePhrase(notes);
-      if (isSingleNote) {
-        instrument.triggerAttack(phrase[0], `+0.1`);
-      } else {
-        phrase.forEach((note, i) => {
-          instrument.triggerAttack(note, `+${i * secondsBetweenNotes + 0.1}`);
-        });
-      }
-    };
-
-    playPhrase();
-    setInterval(() => {
-      playPhrase();
-    }, Math.random() * 10000 + 10000);
+document.addEventListener('DOMContentLodaed', () => {
+  document.body.onclick = () => {
+    Tone.context.resume();
   };
-  getSampledInstrument(instrumentName).then(instrument => start(instrument));
-};
-
-Reflect.ownKeys(instrumentConfigs).forEach(instrumentName => {
-  makeInstrumentComponent(instrumentName);
 });
