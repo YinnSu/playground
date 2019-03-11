@@ -1,90 +1,89 @@
 import Tone from 'tone';
+import { Note, Distance } from 'tonal';
 import samples from './samples.json';
 
-const flutePromise = new Promise(resolve => {
-  const flute = new Tone.Sampler(samples['vsco2-flute-susvib'], {
-    onload: () => resolve(flute),
-    volume: -40,
-    fadeIn: 3,
-    curve: 'linear',
+const findClosest = (samplesByNote, note) => {
+  const noteMidi = Note.midi(note);
+  const maxInterval = 96;
+  let interval = 0;
+  while (interval <= maxInterval) {
+    const higherNote = Note.fromMidi(noteMidi + interval);
+    if (samplesByNote[higherNote]) {
+      return higherNote;
+    }
+    const lowerNote = Note.fromMidi(noteMidi - interval);
+    if (samplesByNote[lowerNote]) {
+      return lowerNote;
+    }
+    interval += 1;
+  }
+  return note;
+};
+
+const getBuffer = url =>
+  new Promise(resolve => {
+    const buffer = new Tone.Buffer(url, () => resolve(buffer));
   });
-});
 
-// COPY
+const drone = (
+  instrumentName,
+  note,
+  destination,
+  pitchShift = 0,
+  reverse = false
+) => {
+  const samplesByNote = samples[instrumentName];
+  const closestSampledNote = findClosest(samplesByNote, note);
+  const difference = Distance.semitones(closestSampledNote, note);
+  const playbackRate = Tone.intervalToFrequencyRatio(difference + pitchShift);
+  const url = samplesByNote[closestSampledNote];
+  return getBuffer(
+    url.includes('samples') ? url : `./samples/${instrumentName}/${url}`
+  ).then(buffer => {
+    const source = new Tone.BufferSource(buffer).connect(destination);
+    source.reverse = reverse;
+    source.onended = () => source.dispose();
+    source.playbackRate.value = playbackRate;
+    source.start();
+  });
+};
 
-const FLUTE_NOTES = ['C3', 'C4', 'G3', 'G4'];
-const guitarSamples = [];
-for (let i = 1; i <= 86; i += 1) {
-  guitarSamples.push(`./samples/acoustic-chords/${i}.wav`);
-}
+const NOTES = ['C4', 'G4', 'E4'];
 
-const makePiece = master =>
-  Promise.all([
-    flutePromise,
-    ...guitarSamples.map(
-      url =>
-        new Promise(resolve => {
-          const buffer = new Tone.Buffer(url, () => resolve(buffer));
-        })
-    ),
-  ]).then(([flute, ...guitarBuffers]) => {
-    const volumeLfo = new Tone.LFO({
-      frequency: Math.random() / 100,
-      min: -40,
-      max: -25,
-    });
-    volumeLfo.connect(flute.volume);
-    volumeLfo.start();
-    const fluteReverb = new Tone.Reverb(50);
-    fluteReverb.wet.value = 1;
-    const delay = new Tone.FeedbackDelay({ delayTime: 1, feedback: 0.7 });
-    fluteReverb.generate().then(() => {
-      flute.chain(fluteReverb, delay, master);
+['vsco2-trumpet-sus-f', 'vsco2-trumpet-sus-mf'].forEach(instrumentName => {
+  const autoFilter = new Tone.AutoFilter(Math.random() / 10, 150, 4)
+    .chain(Tone.Master)
+    .start();
 
-      const intervalTimes = FLUTE_NOTES.map(() => Math.random() * 10000 + 5000);
+  const lfoMin = Math.random() / 100;
+  const lfoMax = lfoMin * 10;
 
-      const shortestInterval = Math.min(...intervalTimes);
+  const frequencyLfo = new Tone.LFO({ min: lfoMin, max: lfoMax });
 
-      FLUTE_NOTES.forEach((note, i) => {
-        const playNote = () => {
-          flute.triggerAttack(note, '+1');
-        };
-        setTimeout(() => {
-          playNote();
-          setInterval(() => {
-            playNote();
-          }, intervalTimes[i]);
-        }, intervalTimes[i] - shortestInterval);
-      });
-    });
+  frequencyLfo.connect(autoFilter.frequency);
+  frequencyLfo.start();
 
-    const reverb = new Tone.Freeverb({
-      roomSize: 0.5,
-      dampening: 5000,
-      wet: 0.2,
-    });
-    const compressor = new Tone.Compressor();
-    reverb.chain(compressor, master);
-    const playRandomChord = lastChord => {
-      const nextChords = guitarBuffers.filter(chord => chord !== lastChord);
-      const randomChord =
-        nextChords[Math.floor(Math.random() * nextChords.length)];
-      const source = new Tone.BufferSource(randomChord).connect(reverb);
-      source.onended = () => console.log('ended');
-      source.start('+1');
+  const lastVol = new Tone.Volume();
+  const lastVolLfo = new Tone.LFO({
+    min: -100,
+    max: -10,
+    frequency: Math.random() / 100,
+    phase: 90,
+  });
+  lastVolLfo.connect(lastVol.volume);
+  lastVolLfo.start();
+  lastVol.connect(autoFilter);
+
+  NOTES.forEach((note, i) => {
+    const playDrone = () => {
+      if (i === NOTES.length - 1) {
+        drone(instrumentName, note, lastVol, -36);
+      }
+      drone(instrumentName, note, autoFilter, -36);
       setTimeout(() => {
-        playRandomChord(randomChord);
-      }, Math.random() * 10000 + 10000);
+        playDrone();
+      }, Math.random() * 20000 + 40000);
     };
-    setTimeout(() => {
-      playRandomChord();
-    }, Math.random() * 5000 + 5000);
+    playDrone();
   });
-
-makePiece(Tone.Master);
-
-document.addEventListener('DOMContentLodaed', () => {
-  document.body.onclick = () => {
-    Tone.context.resume();
-  };
 });
