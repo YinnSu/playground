@@ -450,5 +450,14 @@
     "F2": "f2.wav",
     "F4": "f4.wav",
     "G3": "g3.wav"
-  }
+  },
+  "vcsl-dan-tranh-gliss-mf": [
+    "1.wav",
+    "2.wav",
+    "3.wav",
+    "4.wav",
+    "5.wav",
+    "6.wav"
+  ],
+  "vcsl-digeridoo-sus": ["1.wav", "2.wav", "3.wav"]
 }
