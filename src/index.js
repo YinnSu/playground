@@ -68,7 +68,7 @@ Promise.all(
     percussionInstrument(i)
   )
 ).then(([hats, kick, snare]) => {
-  Tone.Transport.scheduleRepeat(time => {
+  const playDrumLoop = time => {
     volume.volume.linearRampToValueAtTime(-10, time + DRUM_LOOP_LENGTH_S / 2);
     Tone.Transport.scheduleOnce(volumeTime => {
       volume.volume.linearRampToValueAtTime(
@@ -86,7 +86,7 @@ Promise.all(
 
     [[hats, hatPattern], [snare, snarePattern], [kick, kickPattern]].forEach(
       ([inst, pattern], i) => {
-        if (i > 0 || Math.random() < 0.3) {
+        if (i > 0 || Math.random() < 0.25) {
           Tone.Transport.scheduleRepeat(
             patternTime => {
               pattern.forEach(beat => {
@@ -100,7 +100,15 @@ Promise.all(
         }
       }
     );
-  }, DRUM_LOOP_LENGTH_S);
+
+    Tone.Transport.scheduleOnce(nextTime => {
+      playDrumLoop(nextTime);
+    }, time + DRUM_LOOP_LENGTH_S + 2);
+  };
+
+  Tone.Transport.scheduleOnce(time => {
+    playDrumLoop(time);
+  }, 5);
 });
 
 const autoFilter2 = new Tone.AutoFilter({
