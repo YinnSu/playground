@@ -45,13 +45,14 @@ Promise.all(
     const buffer = violinsBuffers[closestSample];
     const bufferSource = new Tone.BufferSource(buffer).toMaster();
     const playbackRate = Tone.intervalToFrequencyRatio(-24 + difference);
+    bufferSource.set({ playbackRate });
     const lfo = new Tone.LFO({
       min: playbackRate - 0.01,
       max: playbackRate + 0.01,
       frequency: Math.random() / 10,
     });
-    lfo.connect(bufferSource.playbackRate);
-    lfo.start();
+    //lfo.connect(bufferSource.playbackRate);
+    //lfo.start();
     bufferSource.start();
   };
   const notes = Chord.notes('C2', 'm7');

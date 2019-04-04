@@ -26,10 +26,10 @@ Promise.all(
       },
       onload: () => {},
     }).toMaster();
-    //lfo.connect(source.playbackRate);
+    lfo.connect(source.playbackRate);
     source.fadeIn = 3;
     source.fadeOut = 10;
-    //lfo.start();
+    lfo.start();
     source.start();
   };
   setInterval(() => {
