@@ -1,6 +1,6 @@
 import Tone from 'tone';
-import { of, from } from 'rxjs';
-import { concatMap, delay, repeat, mergeMap } from 'rxjs/operators';
+import { of, from, timer, merge } from 'rxjs';
+import { concatMap, delay, repeat, mergeMap, mapTo } from 'rxjs/operators';
 import { Scale, Note } from 'tonal';
 import samples from './samples';
 
@@ -45,7 +45,7 @@ function* makeMelodyGenerator(notes) {
 
 const melodyGenerator = makeMelodyGenerator(NOTES);
 
-const getDelayTimeInMS = () => 500 * Math.ceil(Math.random() * 4);
+const getDelayTimeInMS = () => Math.random() * 5000 + 1000;
 
 const octaved = (p, octaveChange) => source =>
   source.pipe(
@@ -60,11 +60,14 @@ const octaved = (p, octaveChange) => source =>
 const humanize = () => source =>
   source.pipe(mergeMap(note => of(note).pipe(delay(Math.random() * 100))));
 
-const notes$ = of(null).pipe(
-  concatMap(() =>
-    of(melodyGenerator.next().value).pipe(delay(getDelayTimeInMS()))
-  ),
-  repeat(),
+const NOTES_2 = ['C3', 'E3', 'G3'];
+
+const notes$ = merge(
+  ...NOTES_2.map(note => {
+    const intervalTime = Math.random() * 20000 + 20000;
+    return timer(intervalTime - 20000, intervalTime).pipe(mapTo(note));
+  })
+).pipe(
   octaved(0.25, -1),
   humanize()
 );
@@ -72,17 +75,19 @@ const notes$ = of(null).pipe(
 Promise.all([
   getSampler('vcsl-dan-tranh-mf'),
   getSampler('vcsl-dan-tranh-vib-mf'),
-]).then(([jonTron, jonTronVib]) => {
+  getSampler('vsco2-piano-mf'),
+]).then(([jonTron, jonTronVib, piano]) => {
   notes$.subscribe(note => {
-    if (Math.random() < 0.1) {
+    if (Math.random() < 0.25) {
       jonTronVib.triggerAttack(note);
     } else {
       jonTron.triggerAttack(note);
     }
+    if (Math.random() < 0.1) {
+      piano.triggerAttack(note);
+    }
   });
   jonTron.toMaster();
   jonTronVib.toMaster();
-  // NOTES.forEach((note, i) => {
-  //   jonTron.triggerAttack(note, i + 1);
-  // });
+  piano.toMaster();
 });
