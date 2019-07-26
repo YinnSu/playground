@@ -79,16 +79,16 @@ function* makeRagaGenerator(raga) {
     const phrase = [];
     let noteIdx = Math.floor(Math.random() * (raga.length - 4));
     const remainingNoteCount = raga.length - noteIdx;
-    const maxPhraseLength = Math.ceil(Math.random() * remainingNoteCount);
-    const divisor = Math.random() * 1.25 + 0.25;
+    const maxPhraseLength = Math.ceil(Math.random() * 12);
+    const divisor = Math.random() + 0.5;
     console.log('new phrase');
     for (
       let count = 0;
       phrase.length < maxPhraseLength &&
       noteIdx < raga.length &&
-      count < 100 &&
+      noteIdx >= 0 &&
       (phrase.length > 1 || Math.random() < 0.95);
-      count += 1, Math.random() < 0.7 ? (noteIdx += 1) : (noteIdx += 2)
+      count += 1
     ) {
       const [interval, time] = raga[noteIdx];
 
@@ -98,6 +98,10 @@ function* makeRagaGenerator(raga) {
           : 1;
 
       phrase.push([interval, (time / divisor) * multiplier]);
+
+      const step = Math.ceil(Math.random() * 3);
+      noteIdx += Math.random() < 0.1 ? -step : step;
+      console.log(noteIdx);
     }
     return phrase;
   }
