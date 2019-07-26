@@ -8,6 +8,7 @@ const samplePath = path.resolve('../samples.generative.fm/src/samples');
 
 module.exports = {
   mode: 'development',
+  devtool: 'sourcemap',
   devServer: {
     //contentBase: samplePath,
   },

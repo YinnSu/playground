@@ -31,7 +31,7 @@
     "rxjs": "^6.4.0",
     "shuffle-array": "^1.0.1",
     "startaudiocontext": "^1.2.1",
-    "tonal": "^2.0.0",
+    "tonal": "^2.2.2",
     "tonal-range": "^2.1.2",
     "tone": "^13.4.9"
   }
