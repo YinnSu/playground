@@ -9,61 +9,84 @@ const getSampler = (samplesByNote, baseUrl = '') =>
     });
   });
 
-const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const pcTranspose = (note, semitones) => {
-  const currentIndex = NOTES.indexOf(note);
-  const naiveIndex = currentIndex + semitones;
-  const octaveChange = Math.floor(naiveIndex / 12);
-  const realIndex =
-    naiveIndex >= 0 ? naiveIndex % 12 : (12 + (naiveIndex % 12)) % 12;
-  return [NOTES[realIndex], octaveChange];
-};
+const phrases = [
+  ['A#', 'F', 'G#', 'C#'],
+  ['A#', 'F', 'D'],
+  ['D', 'D#', 'F'],
+  ['C', 'D#', 'D'],
+  ['A#', 'F', 'G', 'D'],
+];
 
-const transpose = (note, semitones) => {
-  const matches = /([A,B,C,D,E,F,G,#]{1,2})(\d*)/.exec(note);
-  if (matches !== null) {
-    const [_, pc, octaveStr] = matches;
-    const [newPc, octaveChange] = pcTranspose(pc, semitones);
-    if (octaveStr) {
-      return `${newPc}${Number(octaveStr) + octaveChange}`;
-    }
-    return newPc;
-  }
-};
+Promise.all([
+  getSampler(
+    samples['vsco2-trumpet-sus-mf'],
+    './samples/vsco2-trumpet-sus-mf/'
+  ),
+  getSampler(
+    samples['vsco2-trombone-sus-mf'],
+    './samples/vsco2-trombone-sus-mf/'
+  ),
+  getSampler(samples['vsco2-tuba-sus-mf'], './samples/vsco2-tuba-sus-mf/'),
+  new Tone.Reverb(45).generate(),
+]).then(([trumpet, trombone, tuba, reverb]) => {
+  reverb.toMaster();
+  const delay = new Tone.FeedbackDelay(0.2, 0.6).connect(reverb);
+  const trumpetFilter = new Tone.AutoFilter(
+    Math.random() / 1000 + 0.001
+  ).connect(delay);
+  trumpetFilter.start();
+  trumpet.connect(trumpetFilter);
+  const tromboneFilter = new Tone.AutoFilter(
+    Math.random() / 1000 + 0.001
+  ).connect(delay);
+  tromboneFilter.start();
+  trombone.connect(tromboneFilter);
+  const tubaFilter = new Tone.AutoFilter(Math.random() / 1000 + 0.001).connect(
+    reverb
+  );
+  tubaFilter.start();
+  tuba.connect(tubaFilter);
+  tuba.set({ attack: 0.5, curve: 'linear' });
 
-window.transpose = transpose;
+  Object.assign(window, { trumpet, trombone });
 
-const isNotEqual = value1 => value2 => value1 !== value2;
+  const droneTuba = note => {
+    tuba.triggerAttack(note, '+1');
 
-function* makeNoteGenerator(octave) {
-  let currentNote;
+    Tone.Transport.scheduleOnce(() => {
+      droneTuba(note);
+    }, `+${Math.random() * 3 + 2}`);
+  };
 
-  while (1) {
-    const otherNotes = NOTES.filter(isNotEqual(currentNote));
-    currentNote = otherNotes[Math.floor(Math.random() * otherNotes.length)];
-    yield `${currentNote}${octave}`;
-  }
-}
+  droneTuba('A#0');
 
-const chordGenerator = makeNoteGenerator(4);
+  const trumpetPhrase = () => {
+    const trumpetOct = Math.floor(Math.random() * 2) + 2;
+    const tromboneOct = Math.floor(Math.random()) + 1;
+    const trumpetMultiplier = Math.random() * 10 + 5;
+    const tromboneMultiplier = Math.random() * 10 + 5;
+    const tromboneDelay = Math.random() * 15 + 15;
+    const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+    const sliceLength = Math.floor(
+      Math.pow(Math.random(), 0.1) * phrase.length
+    );
+    phrase.slice(0, sliceLength).forEach((pc, i) => {
+      trumpet.triggerAttack(
+        `${pc}${trumpetOct}`,
+        `+${1 + i * trumpetMultiplier}`
+      );
+      trombone.triggerAttack(
+        `${pc}${tromboneOct}`,
+        `${1 + i * tromboneMultiplier + tromboneDelay}`
+      );
+    });
 
-getSampler(samples['vsco2-piano-mf'], './samples/vsco2-piano-mf/').then(
-  piano => {
-    piano.toMaster();
-    const splatterNotes = () => {
-      const up = Math.random() < 0.5;
-      ['C4', 'D#4', 'G4', 'A#4', 'D5']
-        .map(note => (up ? transpose(note, 5) : note))
-        .forEach(note => {
-          console.log(note);
-          piano.triggerAttack(note, `+${1 + Math.random() ** 4 * 5}`);
-        });
+    Tone.Transport.scheduleOnce(() => {
+      trumpetPhrase();
+    }, `+${sliceLength * trumpetMultiplier + 1 + Math.random() * 20}`);
+  };
 
-      Tone.Transport.scheduleOnce(() => {
-        splatterNotes();
-      }, `+${1 + Math.random() * 5 + 10}`);
-    };
-    splatterNotes();
-    Tone.Transport.start();
-  }
-);
+  trumpetPhrase();
+
+  Tone.Transport.start();
+});
