@@ -645,5 +645,40 @@
     "D#1": "dsharp1.wav",
     "F1": "f1.wav",
     "F2": "f2.wav"
-  }
+  },
+  "vcsl-sleighbells": ["1.wav", "2.wav"],
+  "alex-hum-1": {
+    "A#2": "asharp2_1.wav",
+    "A#3": "asharp3_1.wav",
+    "C3": "c3_1.wav",
+    "C4": "c4_1.wav",
+    "D#3": "dsharp3_1.wav",
+    "F3": "f3_1.wav",
+    "G2": "g2_1.wav",
+    "G3": "g3_1.wav"
+  },
+  "alex-hum-2": {
+    "A#2": "asharp2_2.wav",
+    "A#3": "asharp3_2.wav",
+    "C3": "c3_2.wav",
+    "C4": "c4_2.wav",
+    "D#3": "dsharp3_2.wav",
+    "F3": "f3_2.wav",
+    "G2": "g2_2.wav",
+    "G3": "g3_2.wav"
+  },
+  "snare-brush-stir": ["1.wav"],
+  "snare-brush-hit-p": [
+    "1.wav",
+    "2.wav",
+    "3.wav",
+    "4.wav",
+    "5.wav",
+    "6.wav",
+    "7.wav",
+    "8.wav",
+    "9.wav",
+    "10.wav"
+  ],
+  "ride-brush-p": ["1.wav", "2.wav", "3.wav", "4.wav", "5.wav", "6.wav"]
 }
